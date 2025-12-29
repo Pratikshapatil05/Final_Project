@@ -18,15 +18,15 @@ INSERT INTO users (email, password, role) VALUES
 
 ----------Courses Table-----------
 
-CREATE TABLE `courses` (
-  `course_id` int NOT NULL AUTO_INCREMENT,
-  `course_name` varchar(100) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `fees` int NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `video_expire_days` int NOT NULL,
-  PRIMARY KEY (`course_id`)
+CREATE TABLE courses (
+  course_id int NOT NULL AUTO_INCREMENT,
+  course_name varchar(100) NOT NULL,
+  description varchar(255) DEFAULT NULL,
+  fees int NOT NULL,
+  start_date date NOT NULL,
+  end_date date NOT NULL,
+  video_expire_days int NOT NULL,
+  PRIMARY KEY (course_id)
 )
 
 INSERT INTO courses
