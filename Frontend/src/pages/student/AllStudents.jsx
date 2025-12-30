@@ -85,6 +85,8 @@ function AllStudents() {
       </div>
     </>
   );
-}
+}  
+
+
 
 export default AllStudents;
