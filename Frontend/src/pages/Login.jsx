@@ -12,7 +12,7 @@ function Login() {
 
   const { loginStatus, setLoginStatus } = useContext(LoginContext);
 
-  // ✅ Block login page if already logged in (NO toast here)
+  // Block login page if already logged in
   useEffect(() => {
     if (loginStatus) {
       navigate("/", { replace: true });
