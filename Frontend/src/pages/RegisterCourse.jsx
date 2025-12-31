@@ -34,7 +34,7 @@ function RegisterCourse() {
 
       if (response.status === "success") {
         alert("Course registered successfully");
-        navigate("/home");
+        navigate("/");
       } else {
         alert(response.error || "Registration failed");
       }
