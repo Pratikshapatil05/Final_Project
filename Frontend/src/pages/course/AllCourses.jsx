@@ -1,44 +1,46 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { getAllCourses } from "../../services/courseService";
 import AppNavbar from "../../components/AppNavbar";
-import { deleteCourseById } from "../../services/courseService";
+import { getAllCourses, deleteCourseById } from "../../services/courseService";
 import { toast } from "react-toastify";
 
 function AllCourses() {
   const [courses, setCourses] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
-
-  // On first render
-  // React runs useEffect
-  // token is read from sessionStorage
-  // If token exists → getCourses() is called
-  // If not → nothing happens
-
-  // Whenever token changes
-  // Effect runs again
-  // If user logs in (token appears) → courses load automatically
-  // If user logs out (token removed) → effect runs, but if(token) blocks API call
 
   useEffect(() => {
     if (token) {
-      getCourses();
+      loadCourses();
     }
   }, [token]);
 
-  const getCourses = async () => {
-    const result = await getAllCourses(token);
+  const loadCourses = async (sDate, eDate) => {
+    const result = await getAllCourses(token, sDate, eDate);
 
     if (result.status === "success") {
-        console.log(result)
-        setCourses(result.data);
+      setCourses(result.data);
     } else {
-        console.log(result)
-        setCourses([]);
+      toast.error(result.error);
+      setCourses([]);
     }
+  };
+
+  const applyFilter = () => {
+    if (!startDate || !endDate) {
+      toast.warn("Please select both dates");
+      return;
+    }
+    loadCourses(startDate, endDate);
+  };
+
+  const clearFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    loadCourses(); // load all courses again
   };
 
   const deleteCourse = async (courseId) => {
@@ -48,7 +50,7 @@ function AllCourses() {
 
     if (result.status === "success") {
       toast.success("Course deleted");
-      getCourses(); // refresh table
+      loadCourses(startDate, endDate);
     } else {
       toast.error(result.error);
     }
@@ -61,14 +63,48 @@ function AllCourses() {
       year: "numeric",
     });
 
-
   return (
     <>
       <AppNavbar />
-      <div className="container mt-4">
-        <h2 className="mb-3 text-center">All Courses</h2>
 
-        <table className="table table-bordered table-hover table-striped">
+      <div className="container mt-4">
+        <h2 className="text-center mb-3">All Courses</h2>
+
+        {/* 🔍 FILTER BOX */}
+        <div className="row mb-4">
+          <div className="col-md-3">
+            <label className="form-label">Start Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+
+          <div className="col-md-3">
+            <label className="form-label">End Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+
+          <div className="col-md-3 d-flex align-items-end">
+            <button className="btn btn-primary me-2" onClick={applyFilter}>
+              Filter
+            </button>
+
+            <button className="btn btn-secondary" onClick={clearFilter}>
+              Clear
+            </button>
+          </div>
+        </div>
+
+        {/* 📋 TABLE */}
+        <table className="table table-bordered table-striped">
           <thead className="table-dark">
             <tr>
               <th>ID</th>
@@ -90,26 +126,30 @@ function AllCourses() {
                 </td>
               </tr>
             ) : (
-              courses.map((e) => (
-                <tr key={e.course_id}>
-                  <td>{e.course_id}</td>
-                  <td>{e.course_name}</td>
-                  <td>{e.description}</td>
-                  <td>₹{e.fees}</td>
-                  <td>{formatDate(e.start_date)}</td>
-                  <td>{formatDate(e.end_date)}</td>
-                  <td>{e.video_expire_days}</td>
+              courses.map((c) => (
+                <tr key={c.course_id}>
+                  <td>{c.course_id}</td>
+                  <td>{c.course_name}</td>
+                  <td>{c.description}</td>
+                  <td>₹{c.fees}</td>
+                  <td>{formatDate(c.start_date)}</td>
+                  <td>{formatDate(c.end_date)}</td>
+                  <td>{c.video_expire_days}</td>
                   <td className="text-center">
                     <button
                       className="btn btn-sm btn-warning me-2"
-                      onClick={() => navigate("/admin/update-course", { state: { course: e } })}
+                      onClick={() =>
+                        navigate("/admin/update-course", {
+                          state: { course: c },
+                        })
+                      }
                     >
                       ✏️
                     </button>
 
                     <button
                       className="btn btn-sm btn-danger"
-                      onClick={() => deleteCourse(e.course_id)}
+                      onClick={() => deleteCourse(c.course_id)}
                     >
                       🗑️
                     </button>
