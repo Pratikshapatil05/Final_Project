@@ -1,68 +1,90 @@
-import { useContext, useState } from "react"
-import { toast } from "react-toastify"
-import { Link , useNavigate } from "react-router-dom"
-import { loginUser } from "../services/userService"
-import { LoginContext } from "../App"
-import AppNavbar from "../components/AppNavbar"
+import { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/userService";
+import { LoginContext } from "../App";
+import AppNavbar from "../components/AppNavbar";
 
 function Login() {
-    //destructuring of array
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-    //destructuring of object
-    const {setLoginStatus} = useContext(LoginContext)
+  const { loginStatus, setLoginStatus } = useContext(LoginContext);
 
-    const signin = async (event) => {
-        if(email === "")
-            toast.warn('email must be entered')
-        else if(password === "")
-            toast.warn('password must be entered')
-        else{
-            const result = await loginUser(email, password)
-            console.log('api result: ', result)
-            if (result.status === 'success'){
-                //dynamic navigation
-                sessionStorage.setItem('token', result.data.token)
-                sessionStorage.setItem('role', result.data.role)
-                setLoginStatus(true)
-                navigate('/home')
-                toast.success('Login successful')
-            }
-            else{
-                toast.error(result.error)
-                // toast.error("Invalid crendential")
-            }
-        }
+  // ✅ Block login page if already logged in (NO toast here)
+  useEffect(() => {
+    if (loginStatus) {
+      navigate("/", { replace: true });
+    }
+  }, [loginStatus, navigate]);
+
+  const signin = async () => {
+    if (!email) {
+      toast.warn("Email must be entered");
+      return;
     }
 
-    return (
-        <>
-            <AppNavbar />
-            <div className="container w-50">
-                <h2 className="mb-4 mt-3">Login</h2>
+    if (!password) {
+      toast.warn("Password must be entered");
+      return;
+    }
 
-                <div className="mt-3 mb-3">
-                    <label htmlFor="inputEmail" className="form-label">Email</label>
-                    <input type="email" className="form-control" id="inputEmail" placeholder="Enter email" value={email} onChange={event => setEmail(event.target.value)} />
-                </div>
+    const result = await loginUser(email, password);
 
-                <div className="mb-3">
-                    <label htmlFor="inputPassword" className="form-label">Password</label>
-                    <input type="password" className="form-control" id="inputPassword" placeholder="Enter password" value={password} onChange={event => setPassword(event.target.value)} />
-                </div>
+    if (result?.status === "success") {
+      sessionStorage.setItem("token", result.data.token);
+      sessionStorage.setItem("role", result.data.role);
 
-                <div className="mb-3">
-                    <button className="btn btn-success" onClick={signin}>Sign in</button>
-                </div>
+      setLoginStatus(true);
 
-                {/* <div>
-                    Don't have an account? then to register <Link to="/register">Click here</Link>
-                </div> */}
-            </div>
-        </>
-    )
+      if (result.data.role === "admin") {
+        navigate("/course/all-courses", { replace: true });
+      } else {
+        navigate("/my-courses", { replace: true });
+      }
+
+      toast.success("Login successful");
+    } else {
+      toast.error(result?.error || "Invalid credentials");
+    }
+  };
+
+  return (
+    <>
+      <AppNavbar />
+
+      <div className="container w-50 mt-3">
+        <h2 className="mb-4">Login</h2>
+
+        <div className="mb-3">
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Password</label>
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <button className="btn btn-success" onClick={signin}>
+          Sign in
+        </button>
+      </div>
+    </>
+  );
 }
 
-export default Login
+export default Login;
