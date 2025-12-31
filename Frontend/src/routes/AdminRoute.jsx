@@ -1,18 +1,18 @@
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom"
 
 function AdminRoute({ children }) {
-  const token = sessionStorage.getItem("token");
-  const role = sessionStorage.getItem("role");
+  const token = sessionStorage.getItem("token")
+  const role = sessionStorage.getItem("role")
 
   if (!token) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />
   }
 
   if (role !== "admin") {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/my-courses" replace />
   }
 
-  return children;
+  return children
 }
 
-export default AdminRoute;
+export default AdminRoute
