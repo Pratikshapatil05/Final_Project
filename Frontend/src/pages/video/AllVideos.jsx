@@ -5,6 +5,7 @@ import { getAllCourses } from "../../services/courseService";
 import { getAllVideos, deleteVideoById } from "../../services/videoService";
 import { toast } from "react-toastify";
 
+// AllVideos functional Component
 function AllVideos() {
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
