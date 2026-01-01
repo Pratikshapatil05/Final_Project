@@ -1,15 +1,18 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { updateCourse } from "../../services/courseService";
-import AppNavbar from "../../components/AppNavbar";
-import { toast } from "react-toastify";
+import { useLocation, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { updateCourse } from "../../services/courseService"
+import AppNavbar from "../../components/AppNavbar"
+import { toast } from "react-toastify"
 
 function UpdateCourse() {
-  const { state } = useLocation(); // contains old course data
-  const navigate = useNavigate();
-  const token = sessionStorage.getItem("token");
+  const { state } = useLocation()
+  const navigate = useNavigate()
+  const token = sessionStorage.getItem("token")
 
-  // EMPTY fields initially
+  if (!state?.course) {
+    return <div className="container mt-4">No course data</div>
+  }
+
   const [course, setCourse] = useState({
     course_name: "",
     description: "",
@@ -17,35 +20,38 @@ function UpdateCourse() {
     end_date: "",
     fees: "",
     video_expire_days: ""
-  });
+  })
 
-  if (!state?.course)
-    return <div className="container mt-4">No course data</div>;
+  // PRE-FILL FORM
+  useEffect(() => {
+    setCourse({
+      course_name: state.course.course_name,
+      description: state.course.description,
+      start_date: state.course.start_date?.slice(0, 10),
+      end_date: state.course.end_date?.slice(0, 10),
+      fees: state.course.fees,
+      video_expire_days: state.course.video_expire_days
+    })
+  }, [state.course])
 
   const handleChange = (e) => {
-    setCourse({ ...course, [e.target.name]: e.target.value });
-  };
+    setCourse({ ...course, [e.target.name]: e.target.value })
+  }
 
   const submit = async () => {
-    // MERGE old + new
-    const updatedCourse = {
-      ...state.course,   // existing DB values
-      ...course          // overwrite only changed fields
-    };
-
     const result = await updateCourse(
       state.course.course_id,
-      updatedCourse,
+      course,
       token
-    );
+    )
 
     if (result.status === "success") {
-      toast.success("Course updated successfully");
-      navigate("/course/all-courses");
+      toast.success("Course updated successfully")
+      navigate("/course/all-courses")
     } else {
-      toast.error(result.error);
+      toast.error(result.error)
     }
-  };
+  }
 
   return (
     <>
@@ -64,7 +70,6 @@ function UpdateCourse() {
               className="form-control"
               value={course.course_name}
               onChange={handleChange}
-              placeholder={state.course.course_name}
             />
           </div>
 
@@ -76,7 +81,6 @@ function UpdateCourse() {
               className="form-control"
               value={course.description}
               onChange={handleChange}
-              placeholder={state.course.description}
             />
           </div>
 
@@ -110,7 +114,6 @@ function UpdateCourse() {
               className="form-control"
               value={course.fees}
               onChange={handleChange}
-              placeholder={state.course.fees}
             />
           </div>
 
@@ -122,7 +125,6 @@ function UpdateCourse() {
               className="form-control"
               value={course.video_expire_days}
               onChange={handleChange}
-              placeholder={state.course.video_expire_days}
             />
           </div>
 
@@ -136,7 +138,7 @@ function UpdateCourse() {
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export default UpdateCourse;
+export default UpdateCourse
