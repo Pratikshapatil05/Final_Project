@@ -5,6 +5,7 @@ import { getAllCourses } from "../../services/courseService";
 import { addVideo } from "../../services/videoService";
 import { toast } from "react-toastify";
 
+// AddVideo functional component
 function AddVideo() {
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
@@ -29,7 +30,7 @@ function AddVideo() {
   };
 
   const handleChange = (e) => {
-    setVideo({ ...video, [e.target.name]: e.target.value });
+    setVideo({ ...video, [e.target.name]: e.target.value }); // commits the update and trigger re-render
   };
 
   const submit = async () => {
