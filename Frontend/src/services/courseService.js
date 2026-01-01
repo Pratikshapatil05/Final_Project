@@ -7,11 +7,18 @@ export async function getAllActiveCourses() {
   return response.data;
 }
 
-export async function getAllCourses(token) {
-  const URL = config.BASE_URL + "/course/all-courses";
+export async function getAllCourses(token, startDate, endDate) {
+  let URL = config.BASE_URL + "/course/all-courses";
+
+  // add query params only if provided
+  if (startDate && endDate) {
+    URL += `?start_date=${startDate}&end_date=${endDate}`;
+  }
+
   const response = await axios.get(URL, {
     headers: { token }
   });
+
   return response.data;
 }
 
