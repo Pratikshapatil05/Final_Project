@@ -19,7 +19,7 @@ function AdminNavbar() {
 
             {/* Dashboard */}
             <li className="nav-item">
-              <Link className="nav-link" to="/home">Dashboard</Link>
+              <Link className="nav-link" to="/">Dashboard</Link>
             </li>
 
             {/* Courses */}
