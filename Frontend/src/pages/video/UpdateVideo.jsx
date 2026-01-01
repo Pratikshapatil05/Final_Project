@@ -5,6 +5,7 @@ import { getAllCourses } from "../../services/courseService";
 import { updateVideo } from "../../services/videoService";
 import { toast } from "react-toastify";
 
+// UpdateVideo functional component
 function UpdateVideo() {
   const { state } = useLocation();   // video data comes here
   const navigate = useNavigate();
